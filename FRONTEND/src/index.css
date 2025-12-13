@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* src/index.css - Global Styles with Dark Indigo Theme */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+code {
+  font-family: 'Fira Code', source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Primary Color Classes */
+.bg-primary {
+  background-color: #1e3a8a !important;
+}
+
+.bg-primary-light {
+  background-color: #3b82f6 !important;
+}
+
+.bg-primary-dark {
+  background-color: #1e293b !important;
+}
+
+.text-primary {
+  color: #1e3a8a !important;
+}
+
+.border-primary {
+  border-color: #1e3a8a !important;
+}
+
+/* Secondary Color Classes */
+.bg-secondary {
+  background-color: #4f46e5 !important;
+}
+
+.text-secondary {
+  color: #4f46e5 !important;
+}
+
+/* Accent Colors */
+.bg-accent {
+  background-color: #6366f1 !important;
+}
+
+/* Utility Classes */
+.shadow-indigo {
+  box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.3);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e3a8a;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #312e81;
+}
