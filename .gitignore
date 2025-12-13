@@ -1,0 +1,26 @@
+# Node
+node_modules/
+BACKEND/node_modules/
+FRONTEND/node_modules/
+
+# Environment variables
+.env
+.env.*
+BACKEND/.env
+FRONTEND/.env
+
+# Builds
+FRONTEND/build/
+FRONTEND/dist/
+
+# Logs
+npm-debug.log
+*.log
+
+# System files
+.DS_Store
+.vscode/
+.idea/
+
+# Coverage
+coverage/
