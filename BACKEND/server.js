@@ -24,6 +24,7 @@ const io = socketIO(server, {
   }
 });
 
+
 // Socket.IO connection handler
 io.on('connection', (socket) => {
   console.log('📱 New client connected:', socket.id);
@@ -36,21 +37,35 @@ io.on('connection', (socket) => {
 app.use(cors());
 app.use(express.json());
 
-// Database Connection
-const db = mysql.createConnection({
+
+let db;
+
+if (process.env.DATABASE_URL) {
+  // ✅ Production (Render → Railway)
+  db = mysql.createPool(process.env.DATABASE_URL);
+  console.log('🌍 Using DATABASE_URL (production)');
+} else {
+  // ✅ Local development
+  db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT || 3306,
+  });
+  console.log('💻 Using local DB config');
+}
+
+db.getConnection((err, connection) => {
+  if (err) {
+    console.error('❌ Database connection failed:', err);
+  } else {
+    console.log('✅ Connected to MySQL Database');
+    connection.release();
+  }
 });
 
-db.connect((err) => {
-    if (err) {
-        console.error('❌ Database connection failed:', err);
-        process.exit(1);
-    }
-    console.log('✅ Connected to MySQL Database');
-});
+module.exports = db;
 
 // JWT Middleware - Verify Token
 const verifyToken = (req, res, next) => {
