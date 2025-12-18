@@ -67,3 +67,10 @@ SELECT 'Database migration completed successfully!' AS Status;
 SELECT 'Admin password: admin123' AS AdminInfo;
 SELECT 'Conductor password: conductor123' AS ConductorInfo;
 
+UPDATE users 
+SET password_hash = '$2b$10$Qof9U1/thpTUWoaeD2cxW.sfUnQJJhdB17Hu.SO5Rinr/yoGDx5Yq'
+WHERE email = 'admin@buspass.com';
+
+INSERT INTO users (email, password_hash, role, full_name, phone)
+VALUES ('conductor@buspass.com', '$2b$10$fHIG/Vb/ci5FBDPzy7cHuui5jSvPKxBx4AxVNDAkohJm9nmAnnfk6', 'conductor', 'Bus Conductor', '9876543211')
+ON DUPLICATE KEY UPDATE password_hash = '$2b$10$fHIG/Vb/ci5FBDPzy7cHuui5jSvPKxBx4AxVNDAkohJm9nmAnnfk6', role = 'conductor';
