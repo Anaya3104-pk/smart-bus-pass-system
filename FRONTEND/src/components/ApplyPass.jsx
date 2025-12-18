@@ -100,7 +100,7 @@ const handleSubmit = async () => {
 
   try {
     const { data } = await api.post("/api/passes/apply", {
-      routeId: formData.routeId,
+      routeId: parseInt(formData.routeId, 10),
       duration: formData.duration,
       isRenewal: Boolean(renewalData)
     });

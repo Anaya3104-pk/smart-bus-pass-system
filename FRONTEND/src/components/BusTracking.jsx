@@ -58,15 +58,33 @@ const BusTracking = () => {
 
     if (!socketRef.current) {
       socketRef.current = io(API_BASE_URL, {
-        transports: ['websocket'],
+        transports: ['websocket', 'polling'], // Add polling as fallback
         auth: {
           token: localStorage.getItem('token') || ''
         }
       });
+
+      socketRef.current.on('connect', () => {
+        console.log('✅ Socket.IO connected');
+      });
+
+      socketRef.current.on('disconnect', () => {
+        console.log('❌ Socket.IO disconnected');
+      });
+
+      socketRef.current.on('connect_error', (err) => {
+        console.error('Socket.IO connection error:', err);
+      });
     }
 
     const socket = socketRef.current;
+    
+    // Join route room for filtered updates
     socket.emit('join-route', rId);
+    console.log(`📍 Subscribed to route: ${rId}`);
+
+    // Remove existing listeners to avoid duplicates
+    socket.off('bus:location:update');
 
     socket.on('bus:location:update', (bus) => {
       // Only update if this bus belongs to the subscribed route

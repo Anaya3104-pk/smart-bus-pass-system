@@ -37,6 +37,15 @@ const Dashboard = () => {
     }
 
     const parsedUser = JSON.parse(userData);
+    // Redirect admins and conductors to their respective dashboards
+    if (parsedUser.role === 'admin') {
+      navigate('/admin/dashboard');
+      return;
+    }
+    if (parsedUser.role === 'conductor') {
+      navigate('/conductor/tracking');
+      return;
+    }
     setUser(parsedUser);
     
     fetchStats(token);

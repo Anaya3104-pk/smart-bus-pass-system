@@ -40,7 +40,7 @@ const Homepage = () => {
                 onClick={() => navigate('/login')}
                 className="text-gray-700 hover:text-primary-700 font-medium transition-colors"
               >
-                Login
+                Student Login
               </button>
               <button
                 onClick={() => navigate('/signup')}
@@ -66,7 +66,7 @@ const Homepage = () => {
               <p className="text-xl text-blue-100 mb-8">
                 Say goodbye to paper passes. Get instant access to your bus pass on your phone with QR code verification.
               </p>
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-4">
                 <button
                   onClick={() => navigate('/signup')}
                   className="bg-white text-primary-700 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2"
@@ -78,7 +78,19 @@ const Homepage = () => {
                   onClick={() => navigate('/login')}
                   className="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-primary-700 transition-all duration-200"
                 >
-                  Login
+                  Student Login
+                </button>
+                <button
+                  onClick={() => navigate('/admin/login')}
+                  className="border-2 border-white/50 text-white px-6 py-4 rounded-lg font-bold text-base hover:bg-white/10 transition-all duration-200"
+                >
+                  Admin Login
+                </button>
+                <button
+                  onClick={() => navigate('/conductor/login')}
+                  className="border-2 border-white/50 text-white px-6 py-4 rounded-lg font-bold text-base hover:bg-white/10 transition-all duration-200"
+                >
+                  Conductor Login
                 </button>
               </div>
             </div>

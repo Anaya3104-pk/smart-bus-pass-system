@@ -17,10 +17,15 @@ const ConductorTracking = () => {
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (!token || !userData) {
-      navigate('/login');
+      navigate('/conductor/login');
       return;
     }
-    setUser(JSON.parse(userData));
+    const parsedUser = JSON.parse(userData);
+    if (parsedUser.role !== 'conductor') {
+      navigate('/conductor/login');
+      return;
+    }
+    setUser(parsedUser);
   }, [navigate, token]);
 
   const startTracking = () => {
@@ -103,7 +108,7 @@ const ConductorTracking = () => {
     stopTracking();
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    navigate('/login');
+    navigate('/conductor/login');
   };
 
   if (!user) return (

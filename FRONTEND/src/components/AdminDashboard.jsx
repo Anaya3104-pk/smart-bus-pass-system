@@ -40,7 +40,7 @@ const AdminDashboard = () => {
 
     const parsedUser = JSON.parse(userData);
     if (parsedUser.role !== 'admin') {
-      navigate('/dashboard');
+      navigate('/admin/login');
       return;
     }
 
@@ -116,7 +116,7 @@ const AdminDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    navigate('/login');
+    navigate('/admin/login');
   };
 
   if (!user) {
