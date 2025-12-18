@@ -95,7 +95,9 @@ const AdminDashboard = () => {
     setActionLoading(passId);
     try {
       try {
-  await api.put(`/api/admin/passes/${passId}/approve`);
+  await api.put(`/api/admin/passes/${passId}/reject`, { reason });
+
+
   
   // optionally refresh list
   fetchPendingPasses();

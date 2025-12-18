@@ -31,11 +31,11 @@ const Dashboard = () => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
 
-    if (!token || !userData) {
-      navigate('/login');
-      return;
-    }
-
+    if (err.response?.status === 401) {
+    localStorage.clear();
+    navigate("/login");
+    return;
+  }
     const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
     

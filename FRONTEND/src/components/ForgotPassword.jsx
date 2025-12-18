@@ -34,14 +34,12 @@ const ForgotPassword = () => {
 
     try {
       const { data } = await api.post("/api/auth/forgot-password", {
-  email: formData.email,
+  email: formData.email
 });
 
-setMessage(`Reset token generated! Token: ${data.resetToken}`);
+setFormData({ ...formData, resetToken: data.resetToken });
+setStep(2);
 
-      setFormData({ ...formData, resetToken: data.resetToken });
-
-      setStep(2);
     } catch (err) {
       setError(err.response?.data?.message || 'Error requesting password reset');
     } finally {
@@ -68,10 +66,11 @@ setMessage(`Reset token generated! Token: ${data.resetToken}`);
 
     try {
   const { data } = await api.post("/api/auth/reset-password", {
-    email: formData.email,
-    resetToken: formData.resetToken,
-    newPassword: formData.newPassword,
-  });
+  email: formData.email,
+  resetToken: formData.resetToken,
+  newPassword: formData.newPassword
+});
+
 
   setMessage(data.message || "Password reset successful. You can now log in.");
 

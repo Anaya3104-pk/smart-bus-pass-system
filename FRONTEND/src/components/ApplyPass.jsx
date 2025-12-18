@@ -95,52 +95,39 @@ const ApplyPass = () => {
   };
 
 const handleSubmit = async () => {
-    setLoading(true);
-    setError('');
+  setLoading(true);
+  setError("");
 
-    try {
-        const { data } = await api.post("/api/passes/apply", {
-  routeId: formData.routeId,
-  duration: formData.duration,
-  isRenewal: !!renewalData
+  try {
+    const { data } = await api.post("/api/passes/apply", {
+      routeId: formData.routeId,
+      duration: formData.duration,
+      isRenewal: Boolean(renewalData)
+    });
 
-});
+    setSuccess(true);
 
-setSuccess(true);
-
-
-        // Show renewal message if applicable
-        if (data.isRenewal) {
-  alert(
-    `🎉 Renewal application submitted! You get ${data.renewalDiscount}% discount!`
-  );
-}
-
-        
-        setTimeout(() => {
-            navigate('/dashboard');
-        }, 3000);
-    } catch (err) {
-        const errorMessage = err.response?.data?.message || 'Application failed. Please try again.';
-        const errorDetails = err.response?.data?.details || '';
-        const existingPass = err.response?.data?.existingPass;
-        
-        if (existingPass) {
-            // Show detailed error for existing pass
-            setError(
-                `${errorMessage}\n\n` +
-                `Pass Number: ${existingPass.passNumber}\n` +
-                `Status: ${existingPass.status}\n` +
-                `Expires: ${existingPass.expiryDate}\n\n` +
-                `${errorDetails}`
-            );
-        } else {
-            setError(errorMessage);
-        }
-    } finally {
-        setLoading(false);
+    if (data.isRenewal) {
+      alert(`🎉 Renewal submitted! You get ${data.renewalDiscount}% discount`);
     }
+
+    setTimeout(() => navigate("/dashboard"), 3000);
+  } catch (err) {
+    if (err.response?.status === 401) {
+      localStorage.clear();
+      navigate("/login");
+      return;
+    }
+
+    setError(
+      err.response?.data?.message ||
+      "Error creating pass application"
+    );
+  } finally {
+    setLoading(false);
+  }
 };
+
 
   const nextStep = () => {
     if (currentStep === 1 && !formData.routeId) {
