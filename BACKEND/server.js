@@ -6,6 +6,7 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+
 require('dotenv').config();
 
 
@@ -16,11 +17,14 @@ const socketIO = require('socket.io');
 // Create HTTP server
 const server = http.createServer(app);
 
-// Initialize Socket.IO with CORS
 const io = socketIO(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    methods: ["GET", "POST"]
+    origin: [
+      "http://localhost:3000",
+      "https://smart-bus-pass-system.onrender.com"
+    ],
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
@@ -34,7 +38,16 @@ io.on('connection', (socket) => {
   });
 });
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://smart-bus-pass-system.onrender.com"
+    ],
+    credentials: true
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -66,11 +79,12 @@ db.getConnection((err, connection) => {
   }
 });
 
-module.exports = db;
+
 
 // JWT Middleware - Verify Token
 const verifyToken = (req, res, next) => {
-    const token = req.headers['authorization'];
+    const token = req.headers.authorization || req.headers.Authorization;
+
     
     if (!token) {
         return res.status(403).json({ message: 'No token provided' });
@@ -946,20 +960,21 @@ aiResponse += '• Fare: ₹' + fare + '\n';
     });
 }});
 app.get('/api/chatbot/history', verifyToken, (req, res) => {
-const query = 'SELECT query, response, timestamp FROM chatbot_logs WHERE user_id = ? ORDER BY timestamp DESC LIMIT 20';});
-app.get('/api/chatbot/history', verifyToken, (req, res) => {
-const query = 'SELECT query, response, timestamp FROM chatbot_logs WHERE user_id = ? ORDER BY timestamp DESC LIMIT 20';});
-app.delete('/api/chatbot/history', verifyToken, (req, res) => {
-const query = 'DELETE FROM chatbot_logs WHERE user_id = ?';db.query(query, [req.userId], (err, result) => {
-    if (err) {
-        return res.status(500).json({ message: 'Database error', error: err });
-    }
-    res.json({ 
-        success: true,
-        message: 'Chat history cleared',
-        deletedCount: result.affectedRows
+    const query = `
+      SELECT query, response, timestamp
+      FROM chatbot_logs
+      WHERE user_id = ?
+      ORDER BY timestamp DESC
+      LIMIT 20
+    `;
+    db.query(query, [req.userId], (err, results) => {
+        if (err) {
+            return res.status(500).json({ message: 'Database error', error: err });
+        }
+        res.json({ success: true, history: results });
     });
-});});
+});
+
 // =====================================================
 // BUS TRACKING ROUTES
 // =====================================================
@@ -970,7 +985,8 @@ app.post('/api/bus/update-location', verifyToken, async (req, res) => {
     const { busId, latitude, longitude, speed } = req.body;
     
     // Validate input
-    if (!busId || !latitude || !longitude) {
+    if (busId == null || latitude == null || longitude == null) {
+   
       return res.status(400).json({ 
         success: false,
         message: 'Bus ID, latitude, and longitude are required' 
