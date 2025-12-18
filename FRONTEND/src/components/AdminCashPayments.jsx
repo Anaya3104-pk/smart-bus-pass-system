@@ -32,7 +32,8 @@ const AdminCashPayments = () => {
 
   const fetchCashPayments = async () => {
     try {
-      const res = await api.get("/api/admin/payments/cash-pending");
+      const response = await api.get("/api/admin/payments/cash-pending");
+
       setCashPayments(response.data);
     } catch (err) {
       console.error('Error fetching cash payments:', err);
@@ -47,11 +48,8 @@ const AdminCashPayments = () => {
 
     setConfirming(paymentId);
     try {
-      await axios.put(
-        `http://localhost:5000/api/admin/payments/${paymentId}/confirm-cash`,
-        {},
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
+      await api.put(`/api/admin/payments/${paymentId}/confirm-cash`);
+
 
       alert('✅ Cash payment confirmed! Pass activated.');
       

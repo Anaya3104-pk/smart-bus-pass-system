@@ -50,7 +50,8 @@ const AdminDashboard = () => {
 
   const fetchPendingPasses = async () => {
     try {
-      const res = await api.get("/api/admin/passes/pending");
+      const response = await api.get("/api/admin/passes/pending");
+
       setPendingPasses(response.data);
       
       setStats({
@@ -69,12 +70,9 @@ const AdminDashboard = () => {
   const handleApprove = async (passId) => {
     setActionLoading(passId);
     try {
-      await axios.put(
-        `http://localhost:5000/api/admin/passes/${passId}/approve`,
-        {},
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
-      
+  await api.put(`/api/admin/passes/${passId}/approve`);
+  
+  
       setPendingPasses(pendingPasses.filter(pass => pass.pass_id !== passId));
       
       setStats({
@@ -96,11 +94,15 @@ const AdminDashboard = () => {
     
     setActionLoading(passId);
     try {
-      await axios.put(
-        `http://localhost:5000/api/admin/passes/${passId}/reject`,
-        { reason },
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
+      try {
+  await api.put(`/api/admin/passes/${passId}/approve`);
+  
+  // optionally refresh list
+  fetchPendingPasses();
+} catch (err) {
+  console.error("Approve failed:", err);
+}
+
       
       setPendingPasses(pendingPasses.filter(pass => pass.pass_id !== passId));
       

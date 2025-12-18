@@ -40,13 +40,14 @@ const ApplyPass = () => {
   }, []);
 
   const fetchRoutes = async () => {
-    try {
-      await api.post("/api/passes/apply", data);
-      setRoutes(response.data);
-    } catch (err) {
-      setError('Failed to load routes');
-    }
-  };
+  try {
+    const { data } = await api.get("/api/routes");
+    setRoutes(data);
+  } catch (err) {
+    setError("Failed to load routes");
+  }
+};
+
 
   const handleRouteSelect = (route) => {
     setFormData({
@@ -98,26 +99,23 @@ const handleSubmit = async () => {
     setError('');
 
     try {
-        const response = await axios.post(
-            'http://localhost:5000/api/passes/apply',
-            {
-                routeId: formData.routeId,
-                duration: formData.duration,
-                isRenewal: renewalData ? true : false
-            },
-            {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            }
-        );
+        const { data } = await api.post("/api/passes/apply", {
+  routeId: formData.routeId,
+  duration: formData.duration,
+  isRenewal: !!renewalData
 
-        setSuccess(true);
-        
+});
+
+setSuccess(true);
+
+
         // Show renewal message if applicable
-        if (response.data.isRenewal) {
-            alert('🎉 Renewal application submitted! You get ' + response.data.renewalDiscount + '% discount!');
-        }
+        if (data.isRenewal) {
+  alert(
+    `🎉 Renewal application submitted! You get ${data.renewalDiscount}% discount!`
+  );
+}
+
         
         setTimeout(() => {
             navigate('/dashboard');

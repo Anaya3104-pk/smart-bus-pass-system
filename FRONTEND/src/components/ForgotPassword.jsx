@@ -33,12 +33,14 @@ const ForgotPassword = () => {
     setMessage('');
 
     try {
-      await api.post("/api/auth/forgot-password", {
-  email: formData.email
+      const { data } = await api.post("/api/auth/forgot-password", {
+  email: formData.email,
 });
 
-      setMessage(`Reset token generated! Token: ${response.data.resetToken}`);
-      setFormData({ ...formData, resetToken: response.data.resetToken });
+setMessage(`Reset token generated! Token: ${data.resetToken}`);
+
+      setFormData({ ...formData, resetToken: data.resetToken });
+
       setStep(2);
     } catch (err) {
       setError(err.response?.data?.message || 'Error requesting password reset');
@@ -65,13 +67,14 @@ const ForgotPassword = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/auth/reset-password', {
-        email: formData.email,
-        resetToken: formData.resetToken,
-        newPassword: formData.newPassword
-      });
+  const { data } = await api.post("/api/auth/reset-password", {
+    email: formData.email,
+    resetToken: formData.resetToken,
+    newPassword: formData.newPassword,
+  });
 
-      setMessage('Password reset successfully!');
+  setMessage(data.message || "Password reset successful. You can now log in.");
+
       setTimeout(() => {
         navigate('/login');
       }, 2000);
