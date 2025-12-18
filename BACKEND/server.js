@@ -20,13 +20,14 @@ const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {
     origin: [
-      "http://localhost:3000",
-      "https://smart-bus-pass-system.onrender.com"
+      'http://localhost:3000',
+      'https://smart-bus-pass-system.vercel.app'
     ],
-    methods: ["GET", "POST"],
+    methods: ['GET', 'POST'],
     credentials: true
   }
 });
+
 
 
 // Socket.IO connection handler
@@ -38,18 +39,20 @@ io.on('connection', (socket) => {
   });
 });
 // Middleware
-app.use(
-  cors({
-    origin: [
-      "http://localhost:3000",
-      "https://smart-bus-pass-system.onrender.com"
-    ],
-    credentials: true
-  })
-);
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://smart-bus-pass-system.vercel.app'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.options('*', cors());
 
 
 let db;
