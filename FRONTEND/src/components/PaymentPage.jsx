@@ -13,8 +13,7 @@ const PaymentPage = () => {
   const [paymentMethod, setPaymentMethod] = useState('online');
   
   const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-
+  
   useEffect(() => {
     if (!token) {
       navigate('/login');
