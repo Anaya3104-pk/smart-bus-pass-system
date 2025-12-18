@@ -63,12 +63,10 @@ const PaymentPage = () => {
     setProcessing(true);
     
     try {
-      await api.post("/api/payments/cash-payment", {
-  passId: pass.pass_id
-});
+      const response = await api.post("/api/payments/cash-payment", {
+        passId: pass.pass_id
+      });
 
-
-      
       alert('✅ Payment slip generated!\n\nReference: ' + response.data.referenceNumber + '\n\nVisit college office to pay cash.');
       navigate('/my-passes');
     } catch (err) {

@@ -31,11 +31,11 @@ const Dashboard = () => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
 
-    if (err.response?.status === 401) {
-    localStorage.clear();
-    navigate("/login");
-    return;
-  }
+    if (!token || !userData) {
+      navigate('/login');
+      return;
+    }
+
     const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
     
@@ -78,6 +78,10 @@ const Dashboard = () => {
       });
     } catch (err) {
       console.error('Error fetching stats:', err);
+      if (err.response?.status === 401) {
+        localStorage.clear();
+        navigate('/login');
+      }
     }
   };
 

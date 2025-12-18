@@ -1,10 +1,8 @@
 // src/components/BusTracking.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../lib/api';
+import api, { API_BASE_URL } from '../lib/api';
 import { io } from 'socket.io-client';
-
-const SOCKET_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const BusTracking = () => {
   const navigate = useNavigate();
@@ -59,7 +57,7 @@ const BusTracking = () => {
     }
 
     if (!socketRef.current) {
-      socketRef.current = io(SOCKET_URL, {
+      socketRef.current = io(API_BASE_URL, {
         transports: ['websocket'],
         auth: {
           token: localStorage.getItem('token') || ''
@@ -70,13 +68,30 @@ const BusTracking = () => {
     const socket = socketRef.current;
     socket.emit('join-route', rId);
 
-    socket.on('bus-location-update', (bus) => {
-      if (String(bus.route_id) !== String(rId)) return;
+    socket.on('bus:location:update', (bus) => {
+      // Only update if this bus belongs to the subscribed route
+      if (bus.route_id && String(bus.route_id) !== String(rId)) return;
+      
       setBuses(prev => {
         const idx = prev.findIndex(b => b.bus_id === bus.bus_id);
-        if (idx === -1) return [bus, ...prev];
+        if (idx === -1) {
+          // New bus - fetch full bus details if needed
+          return [...prev, { 
+            bus_id: bus.bus_id,
+            current_lat: bus.latitude,
+            current_lng: bus.longitude,
+            route_id: bus.route_id,
+            last_updated: bus.timestamp
+          }];
+        }
+        // Update existing bus
         const copy = [...prev];
-        copy[idx] = { ...copy[idx], ...bus };
+        copy[idx] = { 
+          ...copy[idx], 
+          current_lat: bus.latitude,
+          current_lng: bus.longitude,
+          last_updated: bus.timestamp
+        };
         return copy;
       });
     });

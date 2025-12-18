@@ -94,17 +94,7 @@ const AdminDashboard = () => {
     
     setActionLoading(passId);
     try {
-      try {
-  await api.put(`/api/admin/passes/${passId}/reject`, { reason });
-
-
-  
-  // optionally refresh list
-  fetchPendingPasses();
-} catch (err) {
-  console.error("Approve failed:", err);
-}
-
+      await api.put(`/api/admin/passes/${passId}/reject`, { reason });
       
       setPendingPasses(pendingPasses.filter(pass => pass.pass_id !== passId));
       
@@ -116,6 +106,7 @@ const AdminDashboard = () => {
       
       alert('Pass rejected ❌');
     } catch (err) {
+      console.error('Error rejecting pass:', err);
       alert('Error rejecting pass: ' + (err.response?.data?.message || 'Unknown error'));
     } finally {
       setActionLoading(null);
