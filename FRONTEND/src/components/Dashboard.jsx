@@ -1,7 +1,8 @@
 // src/components/Dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from "../lib/api";
+
 import { 
   FaBus, 
   FaCheckCircle, 
@@ -43,9 +44,7 @@ const Dashboard = () => {
 
   const fetchStats = async (token) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/passes/my-passes', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await api.get("/api/passes/my-passes");
       
       const passes = response.data;
       console.log('Fetched passes:', passes);

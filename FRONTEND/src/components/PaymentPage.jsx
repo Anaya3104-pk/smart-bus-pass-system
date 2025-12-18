@@ -1,7 +1,8 @@
 // src/components/PaymentPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from "../lib/api";
+
 
 const PaymentPage = () => {
   const navigate = useNavigate();
@@ -24,9 +25,7 @@ const PaymentPage = () => {
 
   const fetchPassDetails = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/passes/my-passes', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await api.get("/api/passes/my-passes");
       const selectedPass = response.data.find(p => p.pass_id === parseInt(passId));
       if (!selectedPass) {
         alert('Pass not found!');

@@ -1,7 +1,8 @@
 // src/components/AdminCashPayments.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from "../lib/api";
+
 
 const AdminCashPayments = () => {
   const navigate = useNavigate();
@@ -31,9 +32,7 @@ const AdminCashPayments = () => {
 
   const fetchCashPayments = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/payments/cash-pending', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await api.get("/api/admin/payments/cash-pending");
       setCashPayments(response.data);
     } catch (err) {
       console.error('Error fetching cash payments:', err);

@@ -1,7 +1,8 @@
 // src/components/ForgotPassword.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from "../lib/api";
+
 import { FaLock, FaEnvelope, FaKey, FaArrowLeft, FaCheckCircle } from 'react-icons/fa';
 
 const ForgotPassword = () => {
@@ -32,9 +33,9 @@ const ForgotPassword = () => {
     setMessage('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/forgot-password', {
-        email: formData.email
-      });
+      await api.post("/api/auth/forgot-password", {
+  email: formData.email
+});
 
       setMessage(`Reset token generated! Token: ${response.data.resetToken}`);
       setFormData({ ...formData, resetToken: response.data.resetToken });

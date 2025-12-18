@@ -1,6 +1,7 @@
 // src/components/Chatbot.jsx
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import api from "../lib/api";
+
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,11 +50,10 @@ const Chatbot = () => {
     setIsTyping(true);
 
     try {
-      const response = await axios.post(
-        'http://localhost:5000/api/chatbot/query',
-        { message: textToSend },
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
+      const response = await api.post("/api/chatbot/query", {
+  message: textToSend,
+});
+
 
       const botMessage = {
         type: 'bot',

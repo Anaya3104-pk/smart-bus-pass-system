@@ -1,7 +1,8 @@
 // src/components/Signup.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from "../lib/api";
+
 import { 
   FaUserGraduate, 
   FaEnvelope, 
@@ -65,18 +66,19 @@ const Signup = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/auth/register', {
-        email: formData.email,
-        password: formData.password,
-        fullName: formData.fullName,
-        phone: formData.phone,
-        role: 'student',
-        studentId: formData.studentId,
-        collegeName: formData.collegeName,
-        course: formData.course,
-        year: parseInt(formData.year),
-        address: formData.address
-      });
+      await api.post("/api/auth/register", {
+  email: formData.email,
+  password: formData.password,
+  fullName: formData.fullName,
+  phone: formData.phone,
+  role: "student",
+  studentId: formData.studentId,
+  collegeName: formData.collegeName,
+  course: formData.course,
+  year: parseInt(formData.year),
+  address: formData.address
+});
+
 
       setSuccess(true);
       setTimeout(() => {

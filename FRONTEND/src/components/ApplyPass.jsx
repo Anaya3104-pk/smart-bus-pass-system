@@ -1,7 +1,8 @@
 // src/components/ApplyPass.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import api from "../lib/api";
+
 
 const ApplyPass = () => {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ const ApplyPass = () => {
 
   const fetchRoutes = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/routes');
+      await api.post("/api/passes/apply", data);
       setRoutes(response.data);
     } catch (err) {
       setError('Failed to load routes');

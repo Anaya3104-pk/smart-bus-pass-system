@@ -1,7 +1,8 @@
 // src/components/AdminDashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from "../lib/api";
+
 import { 
   FaUserShield, 
   FaChartBar, 
@@ -49,9 +50,7 @@ const AdminDashboard = () => {
 
   const fetchPendingPasses = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/passes/pending', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await api.get("/api/admin/passes/pending");
       setPendingPasses(response.data);
       
       setStats({
