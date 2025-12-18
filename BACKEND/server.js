@@ -34,6 +34,19 @@ const io = socketIO(server, {
 io.on('connection', (socket) => {
   console.log('📱 New client connected:', socket.id);
   
+  // Handle route subscription for bus tracking
+  socket.on('join-route', (routeId) => {
+    const roomName = `route:${routeId}`;
+    socket.join(roomName);
+    console.log(`📍 Client ${socket.id} joined route room: ${roomName}`);
+  });
+
+  socket.on('leave-route', (routeId) => {
+    const roomName = `route:${routeId}`;
+    socket.leave(roomName);
+    console.log(`📍 Client ${socket.id} left route room: ${roomName}`);
+  });
+  
   socket.on('disconnect', () => {
     console.log('📴 Client disconnected:', socket.id);
   });
@@ -355,8 +368,10 @@ app.get('/api/routes', (req, res) => {
 app.post('/api/passes/apply', verifyToken, (req, res) => {
     const { routeId, duration, isRenewal } = req.body;
     
-    if (!routeId) {
-        return res.status(400).json({ message: 'Route ID is required' });
+    // Validate and convert routeId to integer
+    const parsedRouteId = parseInt(routeId, 10);
+    if (!routeId || isNaN(parsedRouteId)) {
+        return res.status(400).json({ message: 'Valid Route ID is required' });
     }
 
     // Check if user already has an active pass
@@ -398,11 +413,18 @@ app.post('/api/passes/apply', verifyToken, (req, res) => {
             const qrCodeData = passNumber;
             const passDuration = duration || 'monthly';
             
+            // Insert pass application
+            // Note: is_renewal column must exist (boolean or tinyint) - if missing, run: ALTER TABLE bus_passes ADD COLUMN is_renewal BOOLEAN DEFAULT 0;
             const query = 'INSERT INTO bus_passes (user_id, route_id, duration, pass_number, qr_code, status, payment_status, is_renewal) VALUES (?, ?, ?, ?, ?, "pending", "pending", ?)';
             
-            db.query(query, [req.userId, routeId, passDuration, passNumber, qrCodeData, isActualRenewal ? 1 : 0], (err, result) => {
+            db.query(query, [req.userId, parsedRouteId, passDuration, passNumber, qrCodeData, isActualRenewal ? 1 : 0], (err, result) => {
                 if (err) {
-                    return res.status(500).json({ message: 'Error creating pass application', error: err });
+                    console.error('Database error creating pass:', err);
+                    return res.status(500).json({ 
+                        message: 'Error creating pass application', 
+                        error: err.message,
+                        hint: 'Check if is_renewal column exists in bus_passes table'
+                    });
                 }
                 
                 res.status(201).json({
@@ -996,65 +1018,88 @@ app.post('/api/bus/update-location', verifyToken, async (req, res) => {
       });
     }
 
-    // Update bus current location in database
-    const updateQuery = `
-      UPDATE buses 
-      SET current_lat = ?, 
-          current_lng = ?, 
-          last_updated = NOW(),
-          is_tracking = TRUE
-      WHERE bus_id = ?
-    `;
-    
-    db.query(updateQuery, [latitude, longitude, busId], (err, result) => {
+    // First, fetch route_id and then update location
+    db.query('SELECT route_id FROM buses WHERE bus_id = ?', [busId], (err, busResults) => {
       if (err) {
-        console.error('Error updating bus location:', err);
+        console.error('Error fetching bus info:', err);
         return res.status(500).json({ 
           success: false,
-          message: 'Error updating location',
+          message: 'Error fetching bus information',
           error: err.message 
         });
       }
 
-      // Log location history for analytics
-      const logQuery = `
-        INSERT INTO bus_locations (bus_id, latitude, longitude, speed) 
-        VALUES (?, ?, ?, ?)
+      if (!busResults || busResults.length === 0) {
+        return res.status(404).json({ 
+          success: false,
+          message: 'Bus not found' 
+        });
+      }
+
+      const routeId = busResults[0].route_id;
+
+      // Update bus current location in database
+      const updateQuery = `
+        UPDATE buses 
+        SET current_lat = ?, 
+            current_lng = ?, 
+            last_updated = NOW(),
+            is_tracking = TRUE
+        WHERE bus_id = ?
       `;
       
-      db.query(logQuery, [busId, latitude, longitude, speed || 0], (err) => {
+      db.query(updateQuery, [latitude, longitude, busId], (err, result) => {
         if (err) {
-          console.error('Error logging location:', err);
+          console.error('Error updating bus location:', err);
+          return res.status(500).json({ 
+            success: false,
+            message: 'Error updating location',
+            error: err.message 
+          });
         }
-      });
 
-      // Broadcast location to all connected clients via Socket.IO
-      io.emit(`bus:location:${busId}`, {
-        busId,
-        latitude,
-        longitude,
-        speed: speed || 0,
-        timestamp: new Date()
-      });
+        // Log location history for analytics
+        const logQuery = `
+          INSERT INTO bus_locations (bus_id, latitude, longitude, speed) 
+          VALUES (?, ?, ?, ?)
+        `;
+        
+        db.query(logQuery, [busId, latitude, longitude, speed || 0], (err) => {
+          if (err) {
+            console.error('Error logging location:', err);
+          }
+        });
 
-      // Also broadcast to general channel
-      io.emit('bus:location:update', {
-        busId,
-        latitude,
-        longitude,
-        speed: speed || 0,
-        timestamp: new Date()
-      });
-
-      res.json({
-        success: true,
-        message: 'Location updated successfully',
-        data: {
+        // Broadcast location to all connected clients via Socket.IO
+        const locationData = {
           busId,
+          route_id: routeId,
           latitude,
           longitude,
+          speed: speed || 0,
           timestamp: new Date()
-        }
+        };
+
+        // Broadcast to bus-specific room
+        io.emit(`bus:location:${busId}`, locationData);
+        
+        // Broadcast to route-specific room (for students tracking that route)
+        io.to(`route:${routeId}`).emit('bus:location:update', locationData);
+        
+        // Also broadcast globally (for backwards compatibility)
+        io.emit('bus:location:update', locationData);
+
+        res.json({
+          success: true,
+          message: 'Location updated successfully',
+          data: {
+            busId,
+            route_id: routeId,
+            latitude,
+            longitude,
+            timestamp: new Date()
+          }
+        });
       });
     });
   } catch (error) {
