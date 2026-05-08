@@ -72,7 +72,14 @@ let db;
 
 if (process.env.DATABASE_URL) {
   // ✅ Production (Render → Railway)
-  db = mysql.createPool(process.env.DATABASE_URL);
+  db = mysql.createPool({
+    uri: process.env.DATABASE_URL,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0
+  });
   console.log('🌍 Using DATABASE_URL (production)');
 } else {
   // ✅ Local development
@@ -82,6 +89,11 @@ if (process.env.DATABASE_URL) {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0
   });
   console.log('💻 Using local DB config');
 }
